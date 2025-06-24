@@ -1,4 +1,5 @@
 import os
+import flask
 import numpy as np
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
@@ -77,9 +78,18 @@ def predict():
 
 @app.route('/download-image/<path:filename>')
 def download(filename):
-    return send_from_directory('static', filename, as_attachment=True,
-                               mimetype='image/jpg',
-                               download_name=(str(filename) + '.jpg'))
+    import flask
+    from packaging import version
+
+    if version.parse(flask.__version__) >= version.parse("2.0.0"):
+        return send_from_directory('static', filename, as_attachment=True,
+                                mimetype='image/jpg',
+                                download_name=(str(filename) + '.jpg'))
+    else:
+        return send_from_directory('static', filename, as_attachment=True,
+                                mimetype='image/jpg',
+                               attachment_filename=(str(filename) + '.jpg'))
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
